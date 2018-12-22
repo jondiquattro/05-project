@@ -1,6 +1,9 @@
 'use strict';
 
 const fs = require('fs');
+const buffer = require('buffer');
+
+let bufferArray = [];
 
 /**
  * Bitmap -- receives a file name, used in the transformer to note the new buffer
@@ -16,9 +19,14 @@ function Bitmap(filePath) {
  * @param buffer
  */
 Bitmap.prototype.parse = function(buffer) {
+
   this.buffer = buffer;
   this.type = buffer.toString('utf-8', 0, 2);
-  //... and so on
+  this.header = header(buffer);
+ 
+  this.body = arrayify(buffer);
+  console.log(this.body);
+ 
 };
 
 /**
@@ -28,7 +36,7 @@ Bitmap.prototype.parse = function(buffer) {
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
   transforms[operation](this);
-  this.newFile = this.file.replace(/\.bmp/, `.${operation}.bmp`);
+  this.newFile = this.file.replace(/\.bmp/, `./assets/${operation}.bmp`);
 };
 
 /**
@@ -49,7 +57,7 @@ const transformGreyscale = (bmp) => {
 
 const doTheInversion = (bmp) => {
   bmp = {};
-}
+};
 
 /**
  * A dictionary of transformations
@@ -57,10 +65,11 @@ const doTheInversion = (bmp) => {
  */
 const transforms = {
   greyscale: transformGreyscale,
-  invert: doTheInversion
+  invert: doTheInversion,
 };
 
 // ------------------ GET TO WORK ------------------- //
+
 
 function transformWithCallbacks() {
 
@@ -70,18 +79,20 @@ function transformWithCallbacks() {
       throw err;
     }
 
-    bitmap.parse(buffer);
+    console.log('buffer',buffer);
+    //bitmap.parse(buffer);
+    console.log(bitmap.parse(buffer));
 
-    bitmap.transform(operation);
+    // bitmap.transform(operation);
 
     // Note that this has to be nested!
     // Also, it uses the bitmap's instance properties for the name and thew new buffer
-    fs.writeFile(bitmap.newFile, bitmap.buffer, (err, out) => {
-      if (err) {
-        throw err;
-      }
-      console.log(`Bitmap Transformed: ${bitmap.newFile}`);
-    });
+    // fs.writeFile(bitmap.newFile, bitmap.buffer, (err, out) => {
+    //   if (err) {
+    //     throw err;
+    //   }
+    //   console.log(`Bitmap Transformed: ${bitmap.newFile}`);
+    // });
 
   });
 }
@@ -91,5 +102,22 @@ const [file, operation] = process.argv.slice(2);
 
 let bitmap = new Bitmap(file);
 
-transformWithCallbacks();
 
+function arrayify(data){
+  let bufferArray = [];
+  for(let i = 54; i < data.length; i++){
+    bufferArray.push(data[i].toString(16));
+  } 
+  return bufferArray;
+}
+
+function header(data){
+  let headerArray = [];
+  for(let i = 0; i < 53; i++){
+    headerArray.push(data[i].toString(16));
+  }
+  return headerArray;
+}
+
+
+transformWithCallbacks();
