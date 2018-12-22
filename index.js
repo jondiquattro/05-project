@@ -2,13 +2,18 @@
 
 const fs = require('fs');
 
+// console.log('hello')
+
 /**
  * Bitmap -- receives a file name, used in the transformer to note the new buffer
  * @param filePath
  * @constructor
  */
+
+ 
 function Bitmap(filePath) {
   this.file = filePath;
+  // this.file = '05-project/assets/24bit.bmp';
 }
 
 /**
@@ -27,6 +32,7 @@ Bitmap.prototype.parse = function(buffer) {
  */
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
+  console.log(operation)
   transforms[operation](this);
   this.newFile = this.file.replace(/\.bmp/, `.${operation}.bmp`);
 };
@@ -39,7 +45,8 @@ Bitmap.prototype.transform = function(operation) {
  */
 const transformGreyscale = (bmp) => {
 
-  console.log('Transforming bitmap into greyscale', bmp);
+  console.log('Transforming bitmap into greyscale',bmp);
+  callkatyfunction()
 
   //TODO: Figure out a way to validate that the bmp instance is actually valid before trying to transform it
 
@@ -58,6 +65,7 @@ const doTheInversion = (bmp) => {
 const transforms = {
   greyscale: transformGreyscale,
   invert: doTheInversion
+
 };
 
 // ------------------ GET TO WORK ------------------- //
@@ -85,11 +93,11 @@ function transformWithCallbacks() {
 
   });
 }
-
 // TODO: Explain how this works (in your README)
 const [file, operation] = process.argv.slice(2);
 
 let bitmap = new Bitmap(file);
+
 
 transformWithCallbacks();
 
