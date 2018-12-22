@@ -1,0 +1,26 @@
+{
+  "name": "05-project",
+  "version": "1.0.0",
+  "description": "![CF](http://i.imgur.com/7v5ASc8.png) LAB =================================================",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint **/*.js",
+    "test": "jest --coverage --verbose",
+    "test-watch": "jest --watchAll --coverage --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jondiquattro/05-project.git"
+  },
+  "author": "Jon Diquattro Caity Heath Fletcher LaRue",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jondiquattro/05-project/issues"
+  },
+  "homepage": "https://github.com/jondiquattro/05-project#readme",
+  "dependencies": {
+    "buffer": "^5.2.1",
+    "eslint": "^5.10.0",
+    "jest": "^23.6.0"
+  }
+}
