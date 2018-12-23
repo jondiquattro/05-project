@@ -21,7 +21,7 @@ function Bitmap(filePath) {
 Bitmap.prototype.parse = function(buffer) {
 
   this.buffer = buffer;
-  this.type = buffer.toString('utf-8', 0, 2);
+  this.type = buffer.toString('hex', 0, 2);
   this.header = header(buffer);
  
   this.body = arrayify(buffer);
@@ -36,7 +36,7 @@ Bitmap.prototype.parse = function(buffer) {
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
   transforms[operation](this);
-  this.newFile = this.file.replace(/\.bmp/, `./assets/${operation}.bmp`);
+  this.newFile =`./assets/baldy.greyscale.bmp`;
 };
 
 /**
@@ -48,6 +48,18 @@ Bitmap.prototype.transform = function(operation) {
 const transformGreyscale = (bmp) => {
 
   console.log('Transforming bitmap into greyscale', bmp);
+  //console.log(bmp.body);
+  let headStr = bmp.header.join(' ');
+  let headbuff = Buffer.from(headStr);
+  let bodyStr = bmp.body.join(' ');
+  let bodybuff = Buffer.from(bodyStr);
+  // console.log('head: ',headbuff);
+  // console.log({bodybuff});
+  let test = Buffer.from('1');
+  console.log('test' ,test);
+
+  bmp.concatbuff = Buffer.concat([headbuff, bodybuff], (headbuff.length + bodybuff.length), 'hex');
+  //console.log('bmp concat buff', bmp.concatbuff);
 
   //TODO: Figure out a way to validate that the bmp instance is actually valid before trying to transform it
 
@@ -58,6 +70,8 @@ const transformGreyscale = (bmp) => {
 const doTheInversion = (bmp) => {
   bmp = {};
 };
+
+
 
 /**
  * A dictionary of transformations
@@ -81,18 +95,19 @@ function transformWithCallbacks() {
 
     console.log('buffer',buffer);
     //bitmap.parse(buffer);
-    console.log(bitmap.parse(buffer));
+    bitmap.parse(buffer);
 
-    // bitmap.transform(operation);
+    bitmap.transform(operation);
 
     // Note that this has to be nested!
     // Also, it uses the bitmap's instance properties for the name and thew new buffer
-    // fs.writeFile(bitmap.newFile, bitmap.buffer, (err, out) => {
-    //   if (err) {
-    //     throw err;
-    //   }
-    //   console.log(`Bitmap Transformed: ${bitmap.newFile}`);
-    // });
+    fs.writeFile(bitmap.newFile, bitmap.concatbuff, (err, out) => {
+      if (err) {
+        throw err;
+      }
+      console.log(bitmap.concatbuff);
+      console.log(`Bitmap Transformed: ${bitmap.newFile}`);
+    });
 
   });
 }
