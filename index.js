@@ -5,19 +5,12 @@ const buffer = require('buffer');
 
 let bufferArray = [];
 
-/**
- * Bitmap -- receives a file name, used in the transformer to note the new buffer
- * @param filePath
- * @constructor
- */
+// Bitmap -- receives a file name, used in the transformer to note the new buffer
 function Bitmap(filePath) {
   this.file = filePath;
 }
 
-/**
- * Parser -- accepts a buffer and will parse through it, according to the specification, creating object properties for each segment of the file
- * @param buffer
- */
+// Parser -- accepts a buffer and will parse through it, according to the specification, creating object properties for each segment of the file
 Bitmap.prototype.parse = function(buffer) {
 
   this.buffer = buffer;
@@ -29,10 +22,7 @@ Bitmap.prototype.parse = function(buffer) {
  
 };
 
-/**
- * Transform a bitmap using some set of rules. The operation points to some function, which will operate on a bitmap instance
- * @param operation
- */
+// Transform a bitmap using some set of rules. The operation points to some function, which will operate on a bitmap instance
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
   transforms[operation](this);
@@ -43,7 +33,6 @@ Bitmap.prototype.transform = function(operation) {
  * Sample Transformer (greyscale)
  * Would be called by Bitmap.transform('greyscale')
  * Pro Tip: Use "pass by reference" to alter the bitmap's buffer in place so you don't have to pass it around ...
- * @param bmp
  */
 const transformGreyscale = (bmp) => {
 
