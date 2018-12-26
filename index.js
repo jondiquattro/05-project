@@ -7,6 +7,9 @@ const fs = require('fs');
  * @param filePath
  * @constructor
  */
+
+
+ //this function takes a file path 
 function Bitmap(filePath) {
   this.file = filePath;
 }
@@ -17,14 +20,35 @@ function Bitmap(filePath) {
  */
 Bitmap.prototype.parse = function(buffer) {
   this.buffer = buffer;
-  this.type = buffer.toString('utf-8', 0, 2);
-  //... and so on
+
+//   let str1 ='';
+//   for(let i = 0; i<100; i++){
+// str1 += buffer[i].toString(16);
+//   }
+// console.log(str1)
+
+  // console.log(buffer.toString(2))
+
+  //used to get header and body
+  this.type = buffer.toString('hex', 0, 2);
+  this.header = header(buffer);
+  console.log(this.header)
+
+  this.body = arrayify(buffer);
+
+  let whole = Buffer.alloc(41553)  //writes to the buffer
+  whole.write(this.type);
+  
+  // console.log(this.body.length, this.header.length)
+  return {header: this.header, body: this.body, whole: whole}
 };
 
 /**
  * Transform a bitmap using some set of rules. The operation points to some function, which will operate on a bitmap instance
  * @param operation
  */
+
+//  all this does is make a file
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
   transforms[operation](this);
@@ -39,7 +63,8 @@ Bitmap.prototype.transform = function(operation) {
  */
 const transformGreyscale = (bmp) => {
 
-  console.log('Transforming bitmap into greyscale', bmp);
+  // console.log('Transforming bitmap into greyscale', bmp);
+  
 
   //TODO: Figure out a way to validate that the bmp instance is actually valid before trying to transform it
 
@@ -64,19 +89,27 @@ const transforms = {
 
 function transformWithCallbacks() {
 
-  fs.readFile(file, (err, buffer) => {
+  fs.readFile(file, (err, buffer) => {//this is how the file is being loaded into the buffer
 
     if (err) {
       throw err;
     }
-
+    
     bitmap.parse(buffer);
 
     bitmap.transform(operation);
 
+    let input = `424d52a200000000000036000000280000006e00000083ffffff01001800000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    424d52a200000000000036000000280000006e00000083ffffff01001800000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
+    // console.log(bitmap.parse(buffer).body)  ///////////////////////////////////////promised land
+
+
+
     // Note that this has to be nested!
     // Also, it uses the bitmap's instance properties for the name and thew new buffer
-    fs.writeFile(bitmap.newFile, bitmap.buffer, (err, out) => {
+    // fs.writeFile(bitmap.newFile, bitmap.parse(buffer).whole, (err, out) =>
+
+    fs.writeFile(bitmap.newFile, buffAppend(input), (err, out) => { //bitmap.buffer needs to be the altered buffer 
       if (err) {
         throw err;
       }
@@ -89,7 +122,32 @@ function transformWithCallbacks() {
 // TODO: Explain how this works (in your README)
 const [file, operation] = process.argv.slice(2);
 
+function arrayify(data){
+  let bufferArray = [];
+  for(let i = 54; i < data.length; i++){
+    bufferArray.push(data[i].toString(16));
+    
+  } 
+  return bufferArray;
+}
+
+function header(data){
+  let headerArray = [];
+  for(let i = 0; i < 53; i++){
+    headerArray.push(data[i].toString(16));
+  }
+  return headerArray;
+}
+
+//helper function that appends a string to the buffer
+function buffAppend(str){
+  var buf = Buffer.alloc(str.length);
+  buf.fill(str);
+  return str;
+}
+
 let bitmap = new Bitmap(file);
 
 transformWithCallbacks();
+
 
