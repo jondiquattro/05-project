@@ -9,29 +9,27 @@ var streamArr =[]
 
 
 //helpers
-//function pixelArrMaker(dataArr, pixelData)
-function pixelArrMaker(dataArr){
-    const pixelData = [];
-    for(let i =55; i<dataArr.length; i++){
+
+function pixelArrMaker(dataArr, pixelData){
+    // console.log(dataArr)
+    for(let i =0; i<dataArr.length; i++){
         if(dataArr[i].length < 2){
             dataArr[i] = '0'+dataArr[i];
         } 
     }
-    // console.log(dataArr.length)
-    for(let j = 55; j<dataArr.length; j+=3){
+    console.log(dataArr.length)
+    for(let j = 23; j<dataArr.length; j+=3){
         pixelData.push(dataArr[j].concat(dataArr[j+1], dataArr[j+2]))
     }
-
+    
     return pixelData;
 }
 
 
-function makeHeader(dataArr){
-    const headArr =[];
-    for (let i = 0; i <= 54; i ++){
+function makeHeader(headArr, dataArr){
+    for (let i = 0; i < 23; i ++){
         headArr.push('0x' + dataArr[i]);
       }
-    //   console.log(headArr)
     return headArr;
 }
 
@@ -65,21 +63,20 @@ function invert(arr){
 
 
 function swapRedBlue(arr){//is not working
+    for(let i =0; i<arr.legth; i++){
 
-    for(let i =0; i<arr.length; i++){
-        // console.log(arr[i])
-       if(arr[i] == 'ffffff'){
-        //    console.log('true')
+       if(arr[i] === 'ffffff'){
             arr[i] = '000000';
         }
         else if(arr[i] ==='000000'){
             arr[i] = 'ffffff'
         }
     }
+
     return arr;
 }
 
-readFile("./assets/24bit.bmp")
+readFile("./assets/loopy.bmp")
  .then( (data, error) => {
   const dataArrAscii = []
 //   const pixelData = []
@@ -97,19 +94,15 @@ readFile("./assets/24bit.bmp")
     dataArrAscii.push(ascidata);
   }
   let headerTitle = dataArrAscii.join('');
+  pixelArrMaker(dataArr,pixelData);
 
-  //pixelArrMaker(dataArr,pixelData);//1
+  console.log(swapRedBlue(pixelData))
+  console.log(pixelData);
 
-  let bodyPixels =pixelArrMaker(dataArr);
-  let headerInfo = makeHeader(dataArr);
-  
+//   console.log('swap pixels ',swapRedBlue(pixelData))
 
-  //let dataBufferNew = Buffer.from(addHexPreFix(swapRedBlue(pixelData)), 'hex');//2
-  let dataBufferNew = Buffer.from(addHexPreFix(swapRedBlue(bodyPixels)), 'hex')
-
-//   let headerDataBuffer = Buffer.from(makeHeader(headerData,dataArr), 16);
-  let headerDataBuffer = Buffer.from(headerInfo, 16);
-
+  let dataBufferNew = Buffer.from(swapRedBlue(pixelData), 'hex');
+  let headerDataBuffer = Buffer.from(makeHeader(headerData,dataArr), 16);
   let newBufferData = Buffer.concat([headerDataBuffer, dataBufferNew]);
 
 
