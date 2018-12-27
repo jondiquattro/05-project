@@ -9,9 +9,9 @@ var streamArr =[]
 
 
 //helpers
-
-function pixelArrMaker(dataArr, pixelData){
-    // console.log(dataArr)
+//function pixelArrMaker(dataArr, pixelData)
+function pixelArrMaker(dataArr){
+    const pixelData = [];
     for(let i =55; i<dataArr.length; i++){
         if(dataArr[i].length < 2){
             dataArr[i] = '0'+dataArr[i];
@@ -26,11 +26,12 @@ function pixelArrMaker(dataArr, pixelData){
 }
 
 
-function makeHeader(headArr, dataArr){
-    for (let i = 0; i < 54; i ++){
+function makeHeader(dataArr){
+    const headArr =[];
+    for (let i = 0; i <= 54; i ++){
         headArr.push('0x' + dataArr[i]);
       }
-      console.log(headArr)
+    //   console.log(headArr)
     return headArr;
 }
 
@@ -66,9 +67,9 @@ function swapRedBlue(arr){//is not working
 readFile("./assets/24bit.bmp")
  .then( (data, error) => {
   const dataArrAscii = []
-  const pixelData = []
-  const headerData = [];
-  const dataArr = [];
+//   const pixelData = []
+//   const headerData = [];
+  const dataArr = [];//stays
 
 
   for (let i = 0; i < data.length; i++){
@@ -82,20 +83,18 @@ readFile("./assets/24bit.bmp")
   }
   let headerTitle = dataArrAscii.join('');
 
-  pixelArrMaker(dataArr,pixelData);
+  //pixelArrMaker(dataArr,pixelData);//1
 
-  makeHeader(headerData,dataArr);
+  let bodyPixels =pixelArrMaker(dataArr);
+  let headerInfo = makeHeader(dataArr);
+  
 
+  //let dataBufferNew = Buffer.from(addHexPreFix(swapRedBlue(pixelData)), 'hex');//2
+  let dataBufferNew = Buffer.from(addHexPreFix(swapRedBlue(bodyPixels)), 'hex')
 
-    // addHexPreFix(swapRedBlue(pixelData))
-//   console.log(pixelData);
+//   let headerDataBuffer = Buffer.from(makeHeader(headerData,dataArr), 16);
+  let headerDataBuffer = Buffer.from(headerInfo, 16);
 
-//   console.log('swap pixels ',swapRedBlue(pixelData))
-// console.log(pixelData)
-
-  let dataBufferNew = Buffer.from(addHexPreFix(pixelData), 'hex');
-
-  let headerDataBuffer = Buffer.from(makeHeader(headerData,dataArr), 16);
   let newBufferData = Buffer.concat([headerDataBuffer, dataBufferNew]);
 
 
