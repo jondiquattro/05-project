@@ -26,7 +26,7 @@ readFile("./assets/24bit.bmp")
 
   // pixel data starts at index 54, put this in an array
   const pixelData = []
-  for (let i = 54; i < dataArr.length; i++){
+  for (let i = 39; i < dataArr.length; i++){
     pixelData.push(dataArr[i]);
   }
 
