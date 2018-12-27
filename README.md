@@ -40,3 +40,7 @@ Usage Notes or examples
 
 #### UML
 Link to an image of the UML for your application and response to events
+
+
+
+110 pixels Height x 125 width
