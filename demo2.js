@@ -27,10 +27,10 @@ function pixelArrMaker(dataArr, pixelData){
 
 
 function makeHeader(headArr, dataArr){
-    for (let i = 0; i < 54; i ++){
+    for (let i = 0; i <= 54; i ++){
         headArr.push('0x' + dataArr[i]);
       }
-      console.log(headArr)
+    //  console.log(headArr.length)
     return headArr;
 }
 
@@ -48,6 +48,21 @@ function addHexPreFix(arr){
     // console.log('from add prefix',changedArr);
     return changedArr;
 }
+
+
+function invert(arr){
+    //console.log(arr);
+    for(let i = 0; i < arr.length; i++){
+        let inverted = parseInt('ff', 16) - parseInt(arr[i], 16);
+        arr[i]= inverted.toString(16);
+        if(i < 200){
+           // console.log(arr[i]);
+        }
+    }
+
+}
+
+
 function swapRedBlue(arr){//is not working
 
     for(let i =0; i<arr.length; i++){
@@ -84,17 +99,15 @@ readFile("./assets/24bit.bmp")
 
   pixelArrMaker(dataArr,pixelData);
 
-  makeHeader(headerData,dataArr);
 
 
-    // addHexPreFix(swapRedBlue(pixelData))
+//addHexPreFix(invert(pixelData));
 //   console.log(pixelData);
+// console.log('swap pixels ',swapRedBlue(pixelData))
+// console.log('pixel data:', pixelData);
 
-//   console.log('swap pixels ',swapRedBlue(pixelData))
-// console.log(pixelData)
 
-  let dataBufferNew = Buffer.from(addHexPreFix(pixelData), 'hex');
-
+  let dataBufferNew = Buffer.from(invert(addHexPreFix(pixelData)), 16);
   let headerDataBuffer = Buffer.from(makeHeader(headerData,dataArr), 16);
   let newBufferData = Buffer.concat([headerDataBuffer, dataBufferNew]);
 
