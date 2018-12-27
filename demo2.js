@@ -60,7 +60,7 @@ function pixelArrMaker(){
       // add to pixelData
       ID.pixelData.push(rowArrayGrouped);
   }
-  console.log(ID.pixelData);
+  // console.log(ID.pixelData);
 }
 
 
@@ -74,31 +74,50 @@ function makeHeader(){
 function addHexPreFix(){
 
   let arr = ID.pixelData;
-    let joinedStr = arr.join();
-    let joinedArr = joinedStr.split(',');
-    console.log({joinedArr});
+  let joinedStr = arr.join();
+  let joinedArr = joinedStr.split(',');
 
-    const changedArr =[];
+  // console.log({joinedArr});
+  console.log('--------- ADDING HEX PREFIX -----------');
+  console.log(`joinedArr.length: ${joinedArr.length}`);
+  const changedArr =[];
 
-    for(let i = 0; i < joinedArr.length; i++){
-      if (ID.bitsPerPixel === 24 ){
-        changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
-        changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
-        changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
-      } else if (ID.bitsPerPixel === 32){
-        changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
-        changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
-        changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
-        changedArr.push('0x'+joinedArr[i][6]+joinedArr[i][7]);
-      }
+  //14,000 elements
+  // 125 rows of 100 elements, + 2 elements on the end
+  // 112 * 125 = 14000
+  // 110 * 3 = 330 elements , * 125 rows = 41250 elements
+  // padding is 2 elements per row, * 125 rows = 250 elements
+  // total is 41500 elements
+
+  for(let i = 0; i < joinedArr.length; i++){
+
+    if(joinedArr[i] === 'x' ){
+      // changedArr.push('0x00');
+    } else if (ID.bitsPerPixel === 24 ){
+      changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
+      changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
+      changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
+    } else if (ID.bitsPerPixel === 32){
+      changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
+      changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
+      changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
+      changedArr.push('0x'+joinedArr[i][6]+joinedArr[i][7]);
     }
+  }
 
-    // for (let i = 0; i < changedArr.length; i++){
-    //   console.log('from add prefix', changedArr);
-    // }
+  // console.log(`changedArr.length: ${changedArr.length}`);
+  // for (let i = changedArr.length-5; i < changedArr.length; i++){
+  //   console.log(`changedArr[${i}]: ${changedArr[i]}`);
+  // }
 
-    // console.log(changedArr);
-    // console.log(changedArr.length);
+  // for (let i = changedArr.length-332-5; i < changedArr.length-332; i++){
+  //   console.log(`changedArr[${i}]: ${changedArr[i]}`);
+  // }
+
+  // for (let i = 0; i < 5; i++){
+  //   console.log(`changedArr[${i}]: ${changedArr[i]}`);
+  // }
+
     return changedArr;
 }
 
@@ -131,7 +150,7 @@ function invert(arr){
 
 let ID = {};
 
-readFile("./assets/10by10.bmp")
+readFile("./assets/24bit.bmp")
  .then( (data, error) => {
   // global variables
   ID.dataArrAscii = []
@@ -157,9 +176,6 @@ readFile("./assets/10by10.bmp")
     // console.log(`${i}: ${ID.dataArr[i]}`);
   }
   
-  console.log(`dataArr.length: ${ID.dataArr.length}`);
-
-
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   // header info
   // ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -175,7 +191,7 @@ readFile("./assets/10by10.bmp")
     ID.width = parseInt(ID.dataArr[18], 16);
     
     // height
-    ID.height = parseInt(ID.dataArr[22], 16);
+    ID.height = parseInt(ID.dataArr[22], 16); // header data is wrong
 
     // bitsPerPixel
     ID.bitsPerPixel = parseInt(ID.dataArr[28], 16);
@@ -184,7 +200,7 @@ readFile("./assets/10by10.bmp")
     ID.paddingCharsNeeded = ID.hexCharsPerRow % 4;    // 2 for test image
     ID.totalRowLength = ID.hexCharsPerRow + ID.paddingCharsNeeded; // 332 for test image
 
-    ID.rows = (ID.dataArr.length - ID.pixelStartIndex) / ID.hexCharsPerRow;
+    ID.rows = (ID.dataArr.length - ID.pixelStartIndex) / ID.totalRowLength;
     // console.log(`ID.hexCharsPerRow: ${ID.hexCharsPerRow}`);
     // console.log(`ID.rows: ${ID.rows}`);
   }
@@ -193,10 +209,14 @@ readFile("./assets/10by10.bmp")
   // ~~~~~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~
 
+  console.log(`ID.dataArr.length: ${ID.dataArr.length}`);
+  console.log(`ID.pixelStartIndex: ${ID.pixelStartIndex}`);
+  console.log(`ID.dataArr.length - ID.pixelStartIndex: ${ID.dataArr.length - ID.pixelStartIndex}`);
+  console.log(`ID.hexCharsPerRow: ${ID.hexCharsPerRow}`);
   console.log(`ID.width: ${ID.width}`);
   console.log(`ID.height: ${ID.height}`);
   console.log(`ID.bitsPerPixel: ${ID.bitsPerPixel}`);
-  console.log(`ID.pixelStartIndex: ${ID.pixelStartIndex}`);
+  console.log(`ID.rows: ${ID.rows}`);
   // format:
   // [
   //    [ffffff, ffffff, ... , ffffff],
@@ -204,27 +224,16 @@ readFile("./assets/10by10.bmp")
   //    [ffffff, ffffff, ... , ffffff],
   // ]
   pixelArrMaker();
-  // console.log(pixelData);
-
+  console.log(`1 ID.pixelData.length: ${ID.pixelData.length}`);
 
   makeHeader();
+  console.log(`ID.headerData.length: ${ID.headerData.length}`);
 
-  // console.log(headerData);
   let borderWidth = 1;
   // let imageWithBorder = addBorder(pixelData, borderWidth, width, bitsPerPixel);
   addPadding();
+  console.log(`2 ID.pixelData.length: ${ID.pixelData.length}`);
 
-  // log imageWithBorder
-  // console.log('imageWithBorder.length: ', imageWithBorder.length);
-  // for (let i = 0; i < imageWithBorder.length; i++){
-  //   console.log(imageWithBorder[i]);
-  // }
-  // addHexPreFix(swapRedBlue(pixelData))
-  //   console.log(pixelData);
-
-  //   console.log('swap pixels ',swapRedBlue(pixelData))
-  // console.log(pixelData)
-  // console.log(pixelData);
   let arrayWithHexPrefix = addHexPreFix();
   console.log(`arrayWithHexPrefix.length: ${arrayWithHexPrefix.length}`);
 
@@ -234,17 +243,17 @@ readFile("./assets/10by10.bmp")
   let headerDataBuffer = Buffer.from(ID.headerData, 16);
   console.log(`headerDataBuffer.length: ${headerDataBuffer.length}`);
   console.log('~~~~~~');
-  for (let i = 0; i < headerDataBuffer.length; i++){
-    console.log(headerDataBuffer[i].toString(16));
-  }
+  // for (let i = 0; i < headerDataBuffer.length; i++){
+  //   console.log(headerDataBuffer[i].toString(16));
+  // }
 
   let joinedImageBuffer = Buffer.concat([headerDataBuffer, pixelDataBuffer]);
   console.log(`joinedImageBuffer.length: ${joinedImageBuffer.length}`);
   console.log('~~~~~~');
-  console.log(joinedImageBuffer);
-  for (let i = 0; i < joinedImageBuffer.length; i++){
-    console.log(joinedImageBuffer[i].toString(16));
-  }
+  // console.log(joinedImageBuffer);
+  // for (let i = 0; i < joinedImageBuffer.length; i++){
+  //   console.log(joinedImageBuffer[i].toString(16));
+  // }
 
    fs.writeFile('loopytest.bmp', joinedImageBuffer, function (err) {
        if (err) throw err;
@@ -293,11 +302,21 @@ readFile("./assets/10by10.bmp")
  }
 
 
- function addPadding(arr){
+ function addPadding(){
+  console.log(`ID.paddingCharsNeeded: ${ID.paddingCharsNeeded}`);
+  console.log(`Before padding: ID.pixelData[0].length: ${ID.pixelData[0].length}`);
   if (ID.paddingCharsNeeded > 0){
-    for(let i = 0; i < arr.length; i++){
-      arr[i].push('00');
-      arr[i].push('00');
+
+    // for each row
+    for (let i = 0; i < ID.rows; i++){
+      for(let j = 0; j < ID.paddingCharsNeeded; j++){
+        ID.pixelData[i].push('x');
+      }
     }
   }
+
+  console.log(`After padding: ID.pixelData[0].length: ${ID.pixelData[0].length}`);
+  // console.log(`-1: ${ID.pixelData[0][ID.pixelData[0].length-1]}`);
+  // console.log(`-2: ${ID.pixelData[0][ID.pixelData[0].length-2]}`);
+  // console.log(`-3: ${ID.pixelData[0][ID.pixelData[0].length-3]}`);
  }
