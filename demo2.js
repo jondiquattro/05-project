@@ -49,6 +49,21 @@ function addHexPreFix(arr){
     // console.log('from add prefix',changedArr);
     return changedArr;
 }
+
+
+function invert(arr){
+    //console.log(arr);
+    for(let i = 0; i < arr.length; i++){
+        let inverted = parseInt('ff', 16) - parseInt(arr[i], 16);
+        arr[i]= inverted.toString(16);
+        if(i < 200){
+           // console.log(arr[i]);
+        }
+    }
+
+}
+
+
 function swapRedBlue(arr){//is not working
 
     for(let i =0; i<arr.length; i++){
