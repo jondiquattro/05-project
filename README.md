@@ -3,43 +3,32 @@
 
 ## Project Name
 
-### Author: Student/Group Name
+### Authors: Jon Diquattro, Caity Heath, Fletcher LaRue
 
 ### Links and Resources
-* [repo](http://xyz.com)
-* [travis](http://xyz.com)
-* [back-end](http://xyz.com)
-* [front-end](http://xyz.com)
-
-### Modules
-#### `modulename.js`
-##### Exported Values and Methods
-
-###### `foo(thing) -> string`
-Usage Notes or examples
-
-###### `bar(array) -> array`
-Usage Notes or examples
+* [repo](https://github.com/jondiquattro/05-project)
+* [travis](https://www.travis-ci.com/jondiquattro/05-project)
+* [heroku](https://dashboard.heroku.com/apps/lab-05-diquattro) 
 
 ### Setup
 #### `.env` requirements
-* `PORT` - Port Number
-* `MONGODB_URI` - URL to the running mongo instance/db
+* buffer 
+* eslint 
+* jest
+
+
 
 #### Running the app
-* `npm start`
-* Endpoint: `/foo/bar/`
-  * Returns a JSON object with abc in it.
-* Endpoint: `/bing/zing/`
-  * Returns a JSON object with xyz in it.
+* `node demo2`
+  * Returns an image file called looptest.bmp.
 
 #### Tests
-* How do you run tests?
-* What assertions were made?
-* What assertions need to be / should be made?
+To run the code in demo2 run node demo2.js
+any usage notes
+We have not imported the helper functions in demo2 to index yet.
 
-#### UML
-Link to an image of the UML for your application and response to events
+ways to test & prove all of the lab requirements
+We have not conducted any tests at the moment.
 
 
 
