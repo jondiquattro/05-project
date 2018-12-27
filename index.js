@@ -13,6 +13,7 @@ const buffer = require('buffer');
  //this function takes a file path 
 function Bitmap(filePath) {
   this.file = filePath;
+  // this.file = '05-project/assets/24bit.bmp';
 }
 
 // Parser -- accepts a buffer and will parse through it, according to the specification, creating object properties for each segment of the file
@@ -50,6 +51,7 @@ Bitmap.prototype.parse = function(buffer) {
 //  all this does is make a file
 Bitmap.prototype.transform = function(operation) {
   // This is really assumptive and unsafe
+  console.log(operation)
   transforms[operation](this);
   this.newFile =`./assets/baldy.greyscale.bmp`;
 };
@@ -100,9 +102,12 @@ function transformWithCallbacks() {
 
     bitmap.transform(operation);
 
+<<<<<<< HEAD
+=======
     let input = `424d52a200000000000036000000280000006e00000083ffffff01001800000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     424d52a200000000000036000000280000006e00000083ffffff01001800000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`
     // console.log(bitmap.parse(buffer).body)  ///////////////////////////////////////promised land
+>>>>>>> master
 
     // Note that this has to be nested!
     // Also, it uses the bitmap's instance properties for the name and thew new buffer
@@ -118,7 +123,6 @@ function transformWithCallbacks() {
 
   });
 }
-
 // TODO: Explain how this works (in your README)
 const [file, operation] = process.argv.slice(2);
 
