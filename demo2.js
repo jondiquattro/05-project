@@ -9,41 +9,93 @@ var streamArr =[]
 
 
 //helpers
-function pixelArrMaker(dataArr, pixelData, pixelStartIndex){
-    // console.log(dataArr)
-    for(let i = pixelStartIndex+1; i<dataArr.length; i++){
-        if(dataArr[i].length < 2){
-            dataArr[i] = '0'+dataArr[i];
-        } 
+function pixelArrMaker(){
+  for(let i = ID.pixelStartIndex; i<ID.dataArr.length; i++){
+      if(ID.dataArr[i].length < 2){
+        ID.dataArr[i] = '0'+ID.dataArr[i];
+      }
+  }
+
+  // copy the dataArr into a temporary array, with pixel data only (no header data)
+  const tempArr = [];
+  for (let i = ID.pixelStartIndex; i < ID.dataArr.length; i++){
+    tempArr.push(ID.dataArr[i]);
+  }
+
+  // turns all padding to 'x' to make it easier to handle
+  if (ID.paddingCharsNeeded > 0){
+    for(let i = ID.hexCharsPerRow; i <= tempArr.length; i+= ID.totalRowLength) {
+      tempArr[i] = 'x';
+      tempArr[i+1] = 'x';
     }
-    // console.log(dataArr.length)
-    for(let j = pixelStartIndex+1; j<dataArr.length; j+=3){
-        pixelData.push(dataArr[j].concat(dataArr[j+1], dataArr[j+2]))
+  }
+
+  // remove all padding
+  let tempArrNoPadding = [];
+  for (let i = 0; i < tempArr.length; i++){
+    if (tempArr[i] !== 'x'){
+      tempArrNoPadding.push(tempArr[i]);
     }
+  }
+
+  // create row arrays
+  for (let i = 0; i < ID.rows; i++){
+    // fill a single row array
+    let rowArraySingles = [];
+    for(let j = 0; j < ID.hexCharsPerRow; j++){
+      let index = (i * ID.hexCharsPerRow) + j;
+      rowArraySingles.push(tempArrNoPadding[index]);
+    }
+
+    // group the pixel data
+    let rowArrayGrouped = [];
+    for (let j = 0; j < rowArraySingles.length; j+= ID.bitsPerPixel / 8){
+      let pixelRGB = '';
+      if (ID.bitsPerPixel === 24){
+        pixelRGB += rowArraySingles[j] + rowArraySingles[j+1] + rowArraySingles[j+2];
+      } else if (ID.bitsPerPixel === 32){
+        pixelRGB += rowArraySingles[j] + rowArraySingles[j+1] + rowArraySingles[j+2] + rowArraySingles[j+3];
+      }
+
+      rowArrayGrouped.push(pixelRGB);
+    }
+    // add to pixelData
+    ID.pixelData.push(rowArrayGrouped);
+  }
 }
 
 
-function makeHeader(headArr, dataArr, pixelStartIndex){
-    for (let i = 0; i <= pixelStartIndex; i ++){
-        headArr.push('0x' + dataArr[i]);
-      }
-      // console.log(headArr)
+function makeHeader(){
+  for (let i = 0; i < ID.pixelStartIndex; i ++){
+      ID.headerData.push('0x' + ID.dataArr[i]);
+  }
 }
 
 function addHexPreFix(arr){
-    const changedArr =[];
-    arr.forEach( (idx)=>{
 
-        if(idx[4]!== 'u'){
-            changedArr.push('0x'+idx[0]+idx[1]);
-            changedArr.push('0x'+idx[2]+idx[3]);
-            changedArr.push('0x'+idx[4]+idx[5])
-        }
+  let joinedStr = arr.join();
+  let joinedArr = joinedStr.split(',');
 
-    })
-    // console.log('from add prefix',changedArr);
-    return changedArr;
+  const changedArr =[];
+
+  for(let i = 0; i < joinedArr.length; i++){
+
+    if(joinedArr[i] === 'x' ){
+      changedArr.push('0x00');
+    } else if (ID.bitsPerPixel === 24 ){
+      changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
+      changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
+      changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
+    } else if (ID.bitsPerPixel === 32){
+      changedArr.push('0x'+joinedArr[i][0]+joinedArr[i][1]);
+      changedArr.push('0x'+joinedArr[i][2]+joinedArr[i][3]);
+      changedArr.push('0x'+joinedArr[i][4]+joinedArr[i][5]);
+      changedArr.push('0x'+joinedArr[i][6]+joinedArr[i][7]);
+    }
+  }
+  return changedArr;
 }
+
 function swapRedBlue(arr){//is not working
 
     for(let i =0; i<arr.length; i++){
@@ -70,67 +122,119 @@ function invert(arr){
   }
 }
 
+function addPadding(array){
+  if (ID.paddingCharsNeeded > 0){
+    // for each row
+    for (let i = 0; i < ID.rows; i++){
+      for(let j = 0; j < ID.paddingCharsNeeded; j++){
+        array[i].push('x');
+      }
+    }
+  }
+ }
+
+function addBorder(borderWidth){
+  let imageWithBorder = ID.pixelData.slice();
+
+  for (let y = 0; y < ID.rows; y++){
+    for(let x = 0; x < ID.pixelData[0].length; x++){
+      if(y < borderWidth || y > ID.rows-1-borderWidth){
+        imageWithBorder[y][x] = '0000ff';
+      }
+      if(x < borderWidth || x > ID.pixelData[0].length-1-borderWidth){
+        imageWithBorder[y][x] = '0000ff';
+      }
+    }
+  }
+  return imageWithBorder;
+}
+
+
+let ID = {};
+
 readFile("./assets/24bit.bmp")
  .then( (data, error) => {
-  const dataArrAscii = []
-  const pixelData = []
-  const headerData = [];
-  const dataArr = [];
-  let pixelStartIndex = 0;
+  // global variables
+  ID.dataArrAscii = []
+  ID.pixelData = []
+  ID.headerData = [];
+  ID.dataArr = [];
+  ID.pixelStartIndex = 0;
+  ID.width = 0;
+  ID.height = 0;
+  ID.bitsPerPixel = 0;
 
+  ID.hexCharsPerRow = 0;
+  ID.paddingCharsNeeded = 0;
+  ID.totalRowLength = 0;
+  ID.rows = 0;
 
-
+  
+  // put ALL data in hexidecmial format
   for (let i = 0; i < data.length; i++){
-    dataArr.push(data[i].toString(16));
+    ID.dataArr.push(data[i].toString(16));
   }
 
-
+  for(let i = 0; i < ID.dataArr.length; i++){
+    // console.log(`${i}: ${ID.dataArr[i]}`);
+  }
+  
+  // ~~~~~~~~~~~~~~~~~~~~~~~~
+  // header info
+  // ~~~~~~~~~~~~~~~~~~~~~~~~
   for (let i = 0; i < 2; i++){
-    let ascidata = String.fromCharCode(parseInt(dataArr[i],16));
-    dataArrAscii.push(ascidata);
+    let ascidata = String.fromCharCode(parseInt(ID.dataArr[i],16));
+    ID.dataArrAscii.push(ascidata);
   }
-  let headerTitle = dataArrAscii.join('');
-  if (headerTitle === 'BM'){
-    pixelStartIndex += 14;
+  ID.headerTitle = ID.dataArrAscii.join('');
+  if (ID.headerTitle === 'BM'){
+    ID.pixelStartIndex = parseInt(ID.dataArr[10], 16);
 
-    const pixelOffsetFromHeader = [];
-    for (let i = 11; i < 15; i++){
-      pixelOffsetFromHeader.push(dataArr[i]);
-    }
-    let offsetString = pixelOffsetFromHeader.join('');
-    let offsetNum = parseInt(offsetString, 16);
-    pixelStartIndex += offsetNum;
+    // width
+    ID.width = parseInt(ID.dataArr[18], 16);
+    
+    // height
+    ID.height = parseInt(ID.dataArr[22], 16); // header data is wrong
+
+    // bitsPerPixel
+    ID.bitsPerPixel = parseInt(ID.dataArr[28], 16);
+    ID.hexCharsPerRow = ID.width * (ID.bitsPerPixel/8);  // 330 for test image
+    ID.paddingCharsNeeded = ID.hexCharsPerRow % 4;    // 2 for test image
+    ID.totalRowLength = ID.hexCharsPerRow + ID.paddingCharsNeeded; // 332 for test image
+    ID.rows = (ID.dataArr.length - ID.pixelStartIndex) / ID.totalRowLength;
   }
-
-  // let pixelStartIndex = ;
-  console.log({pixelStartIndex});
-  console.log({headerTitle});
+  // ~~~~~~~~~~~~~~~~~~~~~~~~
+  // ~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-  pixelArrMaker(dataArr,pixelData, pixelStartIndex);
+  // format:
+  // [
+  //    [ffffff, ffffff, ... , ffffff],
+  //    [ffffff, ffffff, ... , ffffff],
+  //    [ffffff, ffffff, ... , ffffff],
+  // ]
+  pixelArrMaker();
+  makeHeader();
 
-  makeHeader(headerData,dataArr, pixelStartIndex);
-  console.log(headerData);
-  console.log(pixelData);
-    // addHexPreFix(swapRedBlue(pixelData))
-//   console.log(pixelData);
+  // transforms
+  let transformedArray = [];
+  transformedArray = addBorder(5);
 
-//   console.log('swap pixels ',swapRedBlue(pixelData))
-// console.log(pixelData)
 
-  let dataBufferNew = Buffer.from(addHexPreFix(pixelData), 'hex');
-  console.log({dataBufferNew});
-  let headerDataBuffer = Buffer.from(headerData, 16);
-  console.log({headerDataBuffer});
-  let newBufferData = Buffer.concat([headerDataBuffer, dataBufferNew]);
-  console.log({newBufferData});
-  for (let i = 0; i < newBufferData.length; i++){
-    console.log(newBufferData[i]);
-  }
+  addPadding(transformedArray);
+  transformedArray = addHexPreFix(transformedArray);
+  let pixelDataBuffer = Buffer.from(transformedArray, 'hex');
+  let headerDataBuffer = Buffer.from(ID.headerData, 16);
+  let joinedImageBuffer = Buffer.concat([headerDataBuffer, pixelDataBuffer]);
 
-   fs.writeFile('loopytest.bmp', newBufferData, function (err) {
+
+   fs.writeFile('loopytest.bmp', joinedImageBuffer, function (err) {
        if (err) throw err;
      });
 
  } )
  .catch(error => console.log(error));
+
+
+
+
