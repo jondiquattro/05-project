@@ -64,7 +64,6 @@ function pixelArrMaker(){
   }
 }
 
-
 function makeHeader(){
   for (let i = 0; i < ID.pixelStartIndex; i ++){
       ID.headerData.push('0x' + ID.dataArr[i]);
@@ -131,7 +130,7 @@ function addPadding(array){
       }
     }
   }
- }
+}
 
 function addBorder(borderWidth){
   let imageWithBorder = ID.pixelData.slice();
@@ -224,8 +223,11 @@ readFile("./assets/24bit.bmp")
   addPadding(transformedArray);
   transformedArray = addHexPreFix(transformedArray);
   let pixelDataBuffer = Buffer.from(transformedArray, 'hex');
+  // console.log(ID.headerData);
   let headerDataBuffer = Buffer.from(ID.headerData, 16);
   let joinedImageBuffer = Buffer.concat([headerDataBuffer, pixelDataBuffer]);
+  console.log(`ID.headerData: ${ID.headerData}`);
+  console.log({headerDataBuffer});
 
 
    fs.writeFile('loopytest.bmp', joinedImageBuffer, function (err) {
