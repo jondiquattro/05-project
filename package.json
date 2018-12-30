@@ -21,6 +21,7 @@
   "dependencies": {
     "buffer": "^5.2.1",
     "eslint": "^5.10.0",
-    "jest": "^23.6.0"
+    "jest": "^23.6.0",
+    "jsdoc": "^3.5.5"
   }
 }
