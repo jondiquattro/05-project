@@ -194,8 +194,9 @@ class Bitmap{
 // ------------------------------------------------------ //
 const transforms = {
   // greyscale: transformGreyscale,
-  // invert: doTheInversion,
+  invert: invert,
   border: addBorder,
+  blueWash: blueWash,
 };
 
 function addBorder(bitmapObj, borderWidth, borderColor){
@@ -218,6 +219,54 @@ function addBorder(bitmapObj, borderWidth, borderColor){
   bitmapObj.transformedArray = imageWithBorder;
 }
 
+function blueWash(bitmapObj){
+  //this line copies the original image array.
+  let blueImage = bitmapObj.pixelData.slice();
+
+  for (let y = 0; y < 110; y++){
+    for(let x = 0; x < 125; x++){
+      
+      let blue = blueImage[x][y].replace(/../s, 'ff');
+      blueImage[x][y] = blue;
+    }
+  }
+  bitmapObj.transformedArray = blueImage;
+}
+
+function invert(bitmapObj){
+  let inversion = bitmapObj.pixelData.slice();
+  let ia = [];
+
+  for(let y = 0; y < 110; y++){
+    for(let x = 0; x < 125; x++){
+      let b = inversion[x][y].slice(0,2);
+      let db = parseInt(b,16);
+      let binvert = 255 - db;
+      let hbinvert = binvert.toString(16);
+
+
+      let g = inversion[x][y].slice(2,4);
+      let dg = parseInt(g,16);
+      let ginvert = 255 - dg;
+      let hginvert = ginvert.toString(16);
+
+
+      let r = inversion[x][y].slice(4,6);
+      let dr = parseInt(r,16);
+      let rinvert = 255 - dr;
+      let hrinvert = rinvert.toString(16);
+
+      ia[0] = hbinvert;
+      ia[1] = hginvert;
+      ia[2] = hrinvert;
+
+      let is = ia.join('');
+      inversion[x][y] = is;
+    
+    }
+  }
+  bitmapObj.transformedArray = inversion;
+}
 
 // ---------------------------------------------------- //
 // ------------------ MAIN RUN LOOP ------------------- //
