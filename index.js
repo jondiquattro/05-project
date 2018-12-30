@@ -1,11 +1,12 @@
 'use strict';
 
 const fs = require('fs');
-// const buffer = require('buffer');
 const util = require('util');
-const readFile = util.promisify(fs.readFile);
 
 
+// --------------------------------------------------- //
+// ------------------ BITMAP CLASS ------------------- //
+// --------------------------------------------------- //
 class Bitmap{
   constructor(filePath){
     this.rawBuffer;
@@ -37,7 +38,7 @@ class Bitmap{
   transform (operation){
     // call the transform function specified in the CLI ('operation')
     // pass the CLI option param to the function (i.e. borderWidth)
-    transforms[operation](this, option);
+    transforms[operation](this, paramA, paramB, paramC);
 
     // make a new file path, append operation into the file name
     this.newFile = this.file.replace(/\.bmp/, `.${operation}.bmp`);
@@ -74,15 +75,6 @@ class Bitmap{
       this.rows = (this.dataArr.length - this.pixelStartIndex) / this.totalRowLength;
     }
 
-    // console.log(`this.headerTitle: ${this.headerTitle}`);
-    // console.log(`this.pixelStartIndex: ${this.pixelStartIndex}`);
-    // console.log(`this.width: ${this.width}`);
-    // console.log(`this.height: ${this.height}`);
-    // console.log(`this.bitsPerPixel: ${this.bitsPerPixel}`);
-    // console.log(`this.hexCharsPerRow: ${this.hexCharsPerRow}`);
-    // console.log(`this.paddingCharsNeeded: ${this.paddingCharsNeeded}`);
-    // console.log(`this.totalRowLength: ${this.totalRowLength}`);
-    // console.log(`this.rows: ${this.rows}`);
   }
 
   makePixelArray(){
@@ -196,23 +188,30 @@ class Bitmap{
  
 }
 
-// A dictionary of transformations
+
+// ------------------------------------------------------ //
+// ------------------ TRANSFORMATIONS ------------------- //
+// ------------------------------------------------------ //
 const transforms = {
   // greyscale: transformGreyscale,
   // invert: doTheInversion,
   border: addBorder,
 };
 
-function addBorder(bitmapObj, borderWidth){
+function addBorder(bitmapObj, borderWidth, borderColor){
+  
+  if(!borderColor){
+    borderColor = '0000ff';
+  }
   let imageWithBorder = bitmapObj.pixelData.slice();
 
   for (let y = 0; y < bitmapObj.rows; y++){
     for(let x = 0; x < bitmapObj.pixelData[0].length; x++){
       if(y < borderWidth || y > bitmapObj.rows-1-borderWidth){
-        imageWithBorder[y][x] = '0000ff';
+        imageWithBorder[y][x] = borderColor;
       }
       if(x < borderWidth || x > bitmapObj.pixelData[0].length-1-borderWidth){
-        imageWithBorder[y][x] = '0000ff';
+        imageWithBorder[y][x] = borderColor;
       }
     }
   }
@@ -220,9 +219,9 @@ function addBorder(bitmapObj, borderWidth){
 }
 
 
-// ------------------ GET TO WORK ------------------- //
-
-
+// ---------------------------------------------------- //
+// ------------------ MAIN RUN LOOP ------------------- //
+// ---------------------------------------------------- //
 function transformWithCallbacks() {
 
   fs.readFile(file, (err, buffer) => {
@@ -249,13 +248,14 @@ function transformWithCallbacks() {
   });
 }
 
+// --------------------------------------------------- //
+// ------------------ FIRST TO RUN ------------------- //
+// --------------------------------------------------- //
 
 // TODO: Explain how this works (in your README)
-const [file, operation, option] = process.argv.slice(2);
+const [file, operation, paramA, paramB, paramC] = process.argv.slice(2);
 
 // our global bitmap object
 let bitmap = new Bitmap(file);
 
-// console.log({file});
-// console.log({bitmap});
 transformWithCallbacks();
