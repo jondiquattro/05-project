@@ -197,6 +197,8 @@ const transforms = {
   invert: invert,
   border: addBorder,
   blueWash: blueWash,
+  edge: edge,
+  hair: hair,
 };
 
 function addBorder(bitmapObj, borderWidth, borderColor){
@@ -267,6 +269,136 @@ function invert(bitmapObj){
   }
   bitmapObj.transformedArray = inversion;
 }
+
+function edge(bitmapObj, threshold=50, edgeColor='bf6861'){
+
+  let imageWithEdges = bitmapObj.pixelData.slice();
+
+  let background = 'ffffff';
+
+  for (let y = 0; y < bitmapObj.rows; y++){
+    let x = 0;
+    let detected = false;
+    while ( !detected && x < bitmapObj.pixelData[0].length){
+      // if not background , color it
+      if (isOutsideThreshold(background, bitmapObj.pixelData[y][x], threshold)){
+        detected = true;
+        imageWithEdges[y][x] = edgeColor;
+      }
+      if (bitmapObj.pixelData[y][x] !== background){
+        imageWithEdges[y][x] = edgeColor;
+      }
+      x++;
+    }
+  }
+
+  for (let y = 0; y < bitmapObj.rows; y++){
+    let x = bitmapObj.pixelData[0].length -1;
+    let detected = false;
+
+    // console.log(`x: ${x} y: ${y}`);
+    while ( !detected && x > 0){
+      if (isOutsideThreshold(background, bitmapObj.pixelData[y][x], threshold)){
+        detected = true;
+        imageWithEdges[y][x] = edgeColor;
+      }
+      if (bitmapObj.pixelData[y][x] !== background){
+        imageWithEdges[y][x] = edgeColor;
+      }
+      x--;
+    }
+  }
+
+  for (let x = 0; x < bitmapObj.pixelData[0].length -1; x++){
+    let y = 0;
+    let detected = false;
+
+    while ( !detected && y < bitmapObj.rows){
+      if (isOutsideThreshold(background, bitmapObj.pixelData[y][x], threshold)){
+        detected = true;
+        imageWithEdges[y][x] = edgeColor;
+      }
+      if (bitmapObj.pixelData[y][x] !== background){
+        imageWithEdges[y][x] = edgeColor;
+      }
+      y++;
+    }
+  }
+
+  for (let x = 0; x < bitmapObj.pixelData[0].length -1; x++){
+    let y = bitmapObj.rows -1;
+    let detected = false;
+
+    while ( !detected && y > 0){
+      if (isOutsideThreshold(background, bitmapObj.pixelData[y][x], threshold)){
+        detected = true;
+        imageWithEdges[y][x] = edgeColor;
+      }
+      if (bitmapObj.pixelData[y][x] !== background){
+        imageWithEdges[y][x] = edgeColor;
+      }
+      y--;
+    }
+  }
+
+  bitmapObj.transformedArray = imageWithEdges;
+}
+
+// helper for edge transform
+function isOutsideThreshold(targetColor, color, threshold){
+  let r = parseInt(color.slice(4,6), 16);
+  let g = parseInt(color.slice(2,4), 16);
+  let b = parseInt(color.slice(0,2), 16);
+
+  let rTarget = parseInt(targetColor.slice(4,6), 16);
+  let gTarget = parseInt(targetColor.slice(2,4), 16);
+  let bTarget = parseInt(targetColor.slice(0,2), 16);
+
+  if (Math.abs(r - rTarget) > threshold ||
+      Math.abs(g - gTarget) > threshold ||
+      Math.abs(b - bTarget) > threshold ){
+    return true;
+  }
+  return false;
+}
+
+function hair(bitmapObj, age=20, hairColor='222222'){
+  let imageWithHair = bitmapObj.pixelData.slice();
+  let background = 'ffffff';
+
+  let hairs = 800-(5*age);
+  if (age >= 50){
+    hairs = 0;
+  }
+
+  let hairline = 45-(Math.floor(0.5*age));
+  let hairZone = [];
+  for (let y = 0; y < hairline; y++){
+    let x = 0;
+    let detected = false;
+    while ( !detected && x < bitmapObj.pixelData[0].length){
+      if (bitmapObj.pixelData[y][x] !== background){
+        hairZone.push({y: y, x: x});
+      }
+      x++;
+    }
+  }
+
+  for (let i = 0; i < hairs; i++){
+    let idx = Math.floor(Math.random()*hairZone.length);
+    let x = hairZone[idx].x;
+    let y = hairZone[idx].y;
+
+    for (let i = 0 ; i < 5; i++){
+      if (y - i > 0){
+        imageWithHair[y-i][x] = hairColor;
+      }
+    }
+  }
+
+  bitmapObj.transformedArray = imageWithHair;
+}
+
 
 // ---------------------------------------------------- //
 // ------------------ MAIN RUN LOOP ------------------- //
