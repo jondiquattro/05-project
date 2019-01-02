@@ -96,6 +96,7 @@ function addHexPreFix(arr){
   return changedArr;
 }
 
+//Not currently working!
 function swapRedBlue(arr){//is not working
 
   for(let i =0; i<arr.length; i++){
@@ -257,8 +258,8 @@ readFile('./assets/24bit.bmp')
     // transforms
     let transformedArray = [];
     //transformedArray = addBorder(5);
-    //transformedArray = blueWash();
-    transformedArray = invert();
+    transformedArray = blueWash();
+    //transformedArray = invert();
 
     addPadding(transformedArray);
     transformedArray = addHexPreFix(transformedArray);
